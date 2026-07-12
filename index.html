@@ -8,14 +8,14 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="4l.f5.si - 無料URL短縮">
-<meta property="og:description" content="長いURLを短く簡単に。広告なしの無料URL短縮サービスです。">
+<meta property="og:description" content="長いURLを短く簡単に。登録不要、広告なしの無料URL短縮サービスです。">
 <meta property="og:url" content="https://4l.f5.si/">
 <meta property="og:site_name" content="4l.f5.si">
 <meta property="og:locale" content="ja_JP">
 
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="4l.f5.si - 無料URL短縮">
-<meta name="twitter:description" content="長いURLを短く簡単に。広告なしの無料URL短縮サービスです。">
+<meta name="twitter:description" content="長いURLを短く簡単に。登録不要、広告なしの無料URL短縮サービスです。">
 <style>
   * { box-sizing: border-box; }
   body {
@@ -129,7 +129,7 @@
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  #app, #loginGate { display: none; }
+  #app { display: none; }
   footer {
     max-width: 640px;
     margin: 0 auto;
@@ -208,31 +208,26 @@
   <p>転送しています</p>
 </div>
 
-<div id="loginGate">
-  <div class="wrap">
-    <p class="brand">4l.f5.si</p>
-    <h1>URLを短く</h1>
-    <p class="sub">リンクの作成とアクセス解析の閲覧にはログインが必要です。</p>
-    <div class="card">
-      <button class="btn-google" id="loginBtn">Googleでログイン</button>
-    </div>
-  </div>
-</div>
-
 <div id="app">
   <div class="wrap">
     <p class="brand">4l.f5.si</p>
 
     <div class="userbar">
-      <div class="who">
+      <div class="who" id="loggedOutBar">
+        <span>ログインすると自分のリンクとアクセス解析を見られます</span>
+      </div>
+      <div class="who" id="loggedInBar" style="display:none;">
         <img id="userPhoto" src="" alt="">
         <span id="userName"></span>
       </div>
-      <button class="btn-icon" id="logoutBtn">ログアウト</button>
+      <div>
+        <button class="btn-icon" id="loginBtn">Googleでログイン</button>
+        <button class="btn-icon" id="logoutBtn" style="display:none;">ログアウト</button>
+      </div>
     </div>
 
     <h1>URLを短く</h1>
-    <p class="sub">長いURLを貼り付けるだけで短縮できます。</p>
+    <p class="sub">長いURLを貼り付けるだけで短縮できます。ログイン不要で使えます。</p>
 
     <div class="card">
       <label for="longUrl">元のURL</label>
@@ -258,7 +253,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="myLinksCard" style="display:none;">
       <h2>自分の作成したリンク</h2>
       <div id="myLinks"></div>
     </div>
@@ -279,8 +274,6 @@ import {
   getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ==========================================================
-// ↓↓↓ ここを自分のFirebaseプロジェクトの設定に書き換えてください ↓↓↓
 const firebaseConfig = {
   apiKey: "AIzaSyAuQGXQLhdkQ9IvJ4v3D14afdHmAgU3LOw",
   authDomain: "azqfile.firebaseapp.com",
@@ -289,8 +282,6 @@ const firebaseConfig = {
   messagingSenderId: "329891861242",
   appId: "1:329891861242:web:094003e12667039ff72f43"
 };
-// ↑↑↑ ここまで ↑↑↑
-// ==========================================================
 
 const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
 
@@ -434,7 +425,7 @@ async function createShortUrl(user) {
 
     await setDoc(doc(db, COLLECTION, code), {
       longUrl,
-      ownerUid: user.uid,
+      ownerUid: user ? user.uid : null,
       createdAt: serverTimestamp(),
       clicks: 0
     });
@@ -448,7 +439,7 @@ async function createShortUrl(user) {
     longUrlInput.value = "";
     customCodeInput.value = "";
 
-    loadMyLinks(user);
+    if (user) loadMyLinks(user);
   } catch (e) {
     errorMsg.textContent = "作成に失敗しました。時間をおいて再度お試しください。";
     errorMsg.classList.add("show");
@@ -608,8 +599,27 @@ function renderAnalytics(panel, stats) {
 
 // ---------- 認証まわり ----------
 function updateUserBar(user) {
-  document.getElementById("userPhoto").src = user.photoURL || "";
-  document.getElementById("userName").textContent = user.displayName || user.email || "";
+  const loggedOutBar = document.getElementById("loggedOutBar");
+  const loggedInBar = document.getElementById("loggedInBar");
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const myLinksCard = document.getElementById("myLinksCard");
+
+  if (user) {
+    loggedOutBar.style.display = "none";
+    loggedInBar.style.display = "flex";
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+    document.getElementById("userPhoto").src = user.photoURL || "";
+    document.getElementById("userName").textContent = user.displayName || user.email || "";
+    myLinksCard.style.display = "block";
+  } else {
+    loggedOutBar.style.display = "flex";
+    loggedInBar.style.display = "none";
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
+    myLinksCard.style.display = "none";
+  }
 }
 
 async function handleLogin() {
@@ -629,14 +639,16 @@ async function handleLogout() {
   const redirected = await tryRedirect();
   if (redirected) return;
 
+  document.getElementById("app").style.display = "block";
+
   document.getElementById("loginBtn").addEventListener("click", handleLogin);
   document.getElementById("logoutBtn").addEventListener("click", handleLogout);
 
   document.getElementById("createBtn").addEventListener("click", () => {
-    if (auth.currentUser) createShortUrl(auth.currentUser);
+    createShortUrl(auth.currentUser);
   });
   document.getElementById("longUrl").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && auth.currentUser) createShortUrl(auth.currentUser);
+    if (e.key === "Enter") createShortUrl(auth.currentUser);
   });
 
   document.getElementById("copyBtn").addEventListener("click", () => {
@@ -650,15 +662,8 @@ async function handleLogout() {
   });
 
   onAuthStateChanged(auth, (user) => {
-    if (user) {
-      document.getElementById("loginGate").style.display = "none";
-      document.getElementById("app").style.display = "block";
-      updateUserBar(user);
-      loadMyLinks(user);
-    } else {
-      document.getElementById("app").style.display = "none";
-      document.getElementById("loginGate").style.display = "block";
-    }
+    updateUserBar(user);
+    if (user) loadMyLinks(user);
   });
 })();
 </script>
