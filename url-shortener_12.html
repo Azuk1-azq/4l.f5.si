@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4l.f5.si - 無料URL短縮</title>
+<meta name="description" content="長いURLを短く簡単に。登録不要、広告なしの無料URL短縮サービスです。">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="4l.f5.si - 無料URL短縮">
+<meta property="og:description" content="長いURLを短く簡単に。登録不要、広告なしの無料URL短縮サービスです。">
+<meta property="og:url" content="https://4l.f5.si/">
+<meta property="og:site_name" content="4l.f5.si">
+<meta property="og:locale" content="ja_JP">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="4l.f5.si - 無料URL短縮">
+<meta name="twitter:description" content="長いURLを短く簡単に。登録不要、広告なしの無料URL短縮サービスです。">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f5f6f8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    color: #1c1e21;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 48px 20px; }
+  .brand { font-weight: 700; font-size: 14px; color: #3568e8; margin: 0 0 12px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p.sub { color: #6b7280; margin: 0 0 24px; font-size: 14px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e2e4e8;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  label { font-size: 12px; color: #6b7280; display: block; margin-bottom: 5px; }
+  input[type=text] {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #1c1e21;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  input[type=text]:focus { border-color: #3568e8; }
+  .row { display: flex; gap: 10px; margin-top: 10px; }
+  .row > div { flex: 1; }
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .btn-primary {
+    width: 100%;
+    margin-top: 14px;
+    padding: 11px;
+    background: #3568e8;
+    color: white;
+  }
+  .btn-primary:hover { background: #2c58c9; }
+  .btn-primary:disabled { background: #a9b8e0; cursor: not-allowed; }
+  .btn-icon {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #1c1e21;
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+  .btn-icon:hover { background: #f5f6f8; }
+  .btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #1c1e21;
+    font-size: 14px;
+  }
+  .btn-google:hover { background: #f5f6f8; }
+  #result {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #f0f5ff;
+    border: 1px solid #d3e0fb;
+    border-radius: 4px;
+    display: none;
+  }
+  #result.show { display: block; }
+  #shortUrlLink {
+    color: #3568e8;
+    font-weight: 600;
+    text-decoration: none;
+    word-break: break-all;
+    font-size: 14px;
+  }
+  #shortUrlLink:hover { text-decoration: underline; }
+  .error {
+    color: #c0392b;
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+  }
+  .error.show { display: block; }
+  .hint { font-size: 12px; color: #9aa0aa; margin-top: 6px; }
+  #redirectScreen {
+    display: none;
+    text-align: center;
+    padding: 100px 20px;
+    font-size: 14px;
+    color: #6b7280;
+  }
+  #redirectScreen .spinner {
+    width: 26px; height: 26px;
+    border: 3px solid #e2e4e8;
+    border-top-color: #3568e8;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #app, #loginGate { display: none; }
+  footer {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 10px 20px 40px;
+    color: #9aa0aa;
+    font-size: 12px;
+  }
+  .userbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .userbar .who { display: flex; align-items: center; gap: 8px; }
+  .userbar img { width: 24px; height: 24px; border-radius: 50%; }
+  h2 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
+  .link-row {
+    border-bottom: 1px solid #eceef1;
+    padding: 12px 0;
+  }
+  .link-row:last-child { border-bottom: none; }
+  .link-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .link-row .short { color: #3568e8; font-weight: 600; text-decoration: none; font-size: 13px; }
+  .link-row .long { color: #9aa0aa; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
+  .link-row .clicks { font-size: 12px; color: #6b7280; white-space: nowrap; }
+  .link-row .toggle { background: none; border: none; color: #3568e8; font-size: 12px; padding: 4px 6px; }
+  .analytics-panel {
+    display: none;
+    margin-top: 12px;
+    padding: 14px;
+    background: #f8f9fb;
+    border-radius: 4px;
+  }
+  .analytics-panel.show { display: block; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-box {
+    background: #fff;
+    border: 1px solid #e2e4e8;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+  }
+  .stat-box .num { font-size: 18px; font-weight: 700; }
+  .stat-box .label { font-size: 11px; color: #9aa0aa; margin-top: 2px; }
+  .breakdown-title { font-size: 12px; color: #6b7280; margin: 10px 0 6px; }
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .breakdown-row .key { width: 90px; flex-shrink: 0; color: #1c1e21; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .breakdown-row .bar-bg { flex: 1; background: #e9ebef; border-radius: 3px; height: 8px; overflow: hidden; }
+  .breakdown-row .bar-fill { background: #3568e8; height: 100%; }
+  .breakdown-row .count { width: 28px; text-align: right; color: #6b7280; flex-shrink: 0; }
+  .analytics-note { font-size: 11px; color: #9aa0aa; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div id="redirectScreen">
+  <div class="spinner"></div>
+  <p>転送しています</p>
+</div>
+
+<div id="loginGate">
+  <div class="wrap">
+    <p class="brand">4l.f5.si</p>
+    <h1>URLを短く</h1>
+    <p class="sub">リンクの作成とアクセス解析の閲覧にはログインが必要です。</p>
+    <div class="card">
+      <button class="btn-google" id="loginBtn">Googleでログイン</button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="wrap">
+    <p class="brand">4l.f5.si</p>
+
+    <div class="userbar">
+      <div class="who">
+        <img id="userPhoto" src="" alt="">
+        <span id="userName"></span>
+      </div>
+      <button class="btn-icon" id="logoutBtn">ログアウト</button>
+    </div>
+
+    <h1>URLを短く</h1>
+    <p class="sub">長いURLを貼り付けるだけで短縮できます。</p>
+
+    <div class="card">
+      <label for="longUrl">元のURL</label>
+      <input type="text" id="longUrl" placeholder="https://example.com/path/to/page?id=12345">
+
+      <div class="row">
+        <div>
+          <label for="customCode">エイリアス（任意）</label>
+          <input type="text" id="customCode" placeholder="4l.f5.si/○○○○">
+        </div>
+      </div>
+      <p class="hint">空欄の場合はランダムな6文字のコードが割り当てられます</p>
+
+      <button class="btn-primary" id="createBtn">短縮する</button>
+      <div class="error" id="errorMsg"></div>
+
+      <div id="result">
+        <label>できあがったリンク</label>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+          <a href="#" id="shortUrlLink" target="_blank"></a>
+          <button class="btn-icon" id="copyBtn" style="margin-left:auto;">コピー</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>自分の作成したリンク</h2>
+      <div id="myLinks"></div>
+    </div>
+  </div>
+
+  <footer>
+    <span>&copy; 2026 あずき</span>
+  </footer>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc,
+  addDoc, increment, serverTimestamp, query, where, orderBy, limit
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ==========================================================
+// ↓↓↓ ここを自分のFirebaseプロジェクトの設定に書き換えてください ↓↓↓
+const firebaseConfig = {
+  apiKey: "AIzaSyAuQGXQLhdkQ9IvJ4v3D14afdHmAgU3LOw",
+  authDomain: "azqfile.firebaseapp.com",
+  projectId: "azqfile",
+  storageBucket: "azqfile.firebasestorage.app",
+  messagingSenderId: "329891861242",
+  appId: "1:329891861242:web:094003e12667039ff72f43"
+};
+// ↑↑↑ ここまで ↑↑↑
+// ==========================================================
+
+const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+
+let db, auth, provider;
+if (isConfigured) {
+  const fbApp = initializeApp(firebaseConfig);
+  db = getFirestore(fbApp);
+  auth = getAuth(fbApp);
+  provider = new GoogleAuthProvider();
+}
+
+const COLLECTION = "shortUrls";
+const CODE_CHARS = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 紛らわしい文字(0,O,1,l,I)は除外
+const CODE_LENGTH = 6;
+
+function genCode(len = CODE_LENGTH) {
+  let s = "";
+  for (let i = 0; i < len; i++) {
+    s += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  }
+  return s;
+}
+
+function isValidUrl(str) {
+  try {
+    const u = new URL(str);
+    return u.protocol === "http:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function shortLinkFor(code) {
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("c", code);
+  return url.toString();
+}
+
+function detectDevice() {
+  const ua = navigator.userAgent;
+  if (/ipad|tablet|(android(?!.*mobile))/i.test(ua)) return "tablet";
+  if (/mobile|iphone|android/i.test(ua)) return "mobile";
+  return "desktop";
+}
+
+function detectReferrer() {
+  if (!document.referrer) return "direct";
+  try {
+    return new URL(document.referrer).hostname || "direct";
+  } catch {
+    return "direct";
+  }
+}
+
+// ---------- リダイレクト処理（誰でもアクセス可） ----------
+async function tryRedirect() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("c");
+  if (!code) return false;
+
+  document.getElementById("redirectScreen").style.display = "block";
+
+  try {
+    const ref = doc(db, COLLECTION, code);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      document.getElementById("redirectScreen").innerHTML =
+        '<p>このリンクは見つかりませんでした。</p>' +
+        '<p><a href="' + window.location.pathname + '" style="color:#3568e8">トップに戻る</a></p>';
+      return true;
+    }
+
+    // アクセスログを記録（失敗しても遷移は続行）
+    const accessesRef = collection(db, COLLECTION, code, "accesses");
+    addDoc(accessesRef, {
+      timestamp: serverTimestamp(),
+      referrer: detectReferrer(),
+      device: detectDevice()
+    }).catch(() => {});
+    updateDoc(ref, { clicks: increment(1) }).catch(() => {});
+
+    window.location.replace(snap.data().longUrl);
+    return true;
+  } catch (e) {
+    document.getElementById("redirectScreen").innerHTML =
+      '<p>エラーが発生しました。時間をおいて再度お試しください。</p>';
+    return true;
+  }
+}
+
+// ---------- 作成UI処理 ----------
+async function createShortUrl(user) {
+  const longUrlInput = document.getElementById("longUrl");
+  const customCodeInput = document.getElementById("customCode");
+  const errorMsg = document.getElementById("errorMsg");
+  const result = document.getElementById("result");
+  const createBtn = document.getElementById("createBtn");
+
+  errorMsg.classList.remove("show");
+  result.classList.remove("show");
+
+  const longUrl = longUrlInput.value.trim();
+  let customCode = customCodeInput.value.trim();
+
+  if (!isValidUrl(longUrl)) {
+    errorMsg.textContent = "http:// または https:// から始まる正しいURLを入力してください。";
+    errorMsg.classList.add("show");
+    return;
+  }
+
+  if (customCode && !/^[a-zA-Z0-9_-]{3,32}$/.test(customCode)) {
+    errorMsg.textContent = "エイリアスは半角英数字・ハイフン・アンダースコアで3〜32文字にしてください。";
+    errorMsg.classList.add("show");
+    return;
+  }
+
+  createBtn.disabled = true;
+  createBtn.textContent = "作成中...";
+
+  try {
+    let code = customCode;
+
+    if (code) {
+      const existing = await getDoc(doc(db, COLLECTION, code));
+      if (existing.exists()) {
+        errorMsg.textContent = "そのエイリアスはすでに使われています。";
+        errorMsg.classList.add("show");
+        return;
+      }
+    } else {
+      let attempts = 0;
+      while (attempts < 5) {
+        code = genCode();
+        const existing = await getDoc(doc(db, COLLECTION, code));
+        if (!existing.exists()) break;
+        attempts++;
+      }
+    }
+
+    await setDoc(doc(db, COLLECTION, code), {
+      longUrl,
+      ownerUid: user.uid,
+      createdAt: serverTimestamp(),
+      clicks: 0
+    });
+
+    const shortLink = shortLinkFor(code);
+    const linkEl = document.getElementById("shortUrlLink");
+    linkEl.href = shortLink;
+    linkEl.textContent = shortLink;
+    result.classList.add("show");
+
+    longUrlInput.value = "";
+    customCodeInput.value = "";
+
+    loadMyLinks(user);
+  } catch (e) {
+    errorMsg.textContent = "作成に失敗しました。時間をおいて再度お試しください。";
+    errorMsg.classList.add("show");
+  } finally {
+    createBtn.disabled = false;
+    createBtn.textContent = "短縮する";
+  }
+}
+
+// ---------- 自分のリンク一覧 ----------
+async function loadMyLinks(user) {
+  const listEl = document.getElementById("myLinks");
+  listEl.innerHTML = '<p style="color:#9aa0aa; font-size:13px;">読み込み中...</p>';
+
+  try {
+    const q = query(
+      collection(db, COLLECTION),
+      where("ownerUid", "==", user.uid),
+      orderBy("createdAt", "desc"),
+      limit(20)
+    );
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      listEl.innerHTML = '<p style="color:#9aa0aa; font-size:13px;">まだリンクがありません。</p>';
+      return;
+    }
+
+    listEl.innerHTML = "";
+    snap.forEach(d => {
+      const data = d.data();
+      const code = d.id;
+
+      const row = document.createElement("div");
+      row.className = "link-row";
+      row.innerHTML =
+        '<div class="link-row-top">' +
+          '<div>' +
+            '<a class="short" href="' + shortLinkFor(code) + '" target="_blank">/' + code + '</a><br>' +
+            '<span class="long" title="' + data.longUrl.replace(/"/g, "&quot;") + '">' + data.longUrl + '</span>' +
+          '</div>' +
+          '<div style="text-align:right;">' +
+            '<div class="clicks">' + (data.clicks || 0) + ' クリック</div>' +
+            '<button class="toggle" data-code="' + code + '">解析を見る</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="analytics-panel" id="panel-' + code + '"></div>';
+
+      listEl.appendChild(row);
+    });
+
+    listEl.querySelectorAll(".toggle").forEach(btn => {
+      btn.addEventListener("click", () => toggleAnalytics(btn.dataset.code, btn));
+    });
+  } catch (e) {
+    console.error("自分のリンク読み込みエラー:", e);
+    listEl.innerHTML = '<p style="color:#c0392b; font-size:13px;">読み込みに失敗しました。' +
+      (e.message.includes("index") ? "（Firestoreのインデックス作成が必要な場合があります。コンソールのリンクから作成してください）" : "") +
+      '</p>';
+  }
+}
+
+// ---------- 解析パネルの開閉 ----------
+const analyticsCache = {};
+
+async function toggleAnalytics(code, btn) {
+  const panel = document.getElementById("panel-" + code);
+  const isOpen = panel.classList.contains("show");
+
+  if (isOpen) {
+    panel.classList.remove("show");
+    btn.textContent = "解析を見る";
+    return;
+  }
+
+  panel.classList.add("show");
+  btn.textContent = "閉じる";
+
+  if (analyticsCache[code]) {
+    renderAnalytics(panel, analyticsCache[code]);
+    return;
+  }
+
+  panel.innerHTML = '<p style="color:#9aa0aa; font-size:13px;">集計中...</p>';
+
+  try {
+    const stats = await computeAnalytics(code);
+    analyticsCache[code] = stats;
+    renderAnalytics(panel, stats);
+  } catch (e) {
+    panel.innerHTML = '<p style="color:#c0392b; font-size:13px;">解析データの取得に失敗しました。</p>';
+  }
+}
+
+async function computeAnalytics(code) {
+  const accessesRef = collection(db, COLLECTION, code, "accesses");
+  const q = query(accessesRef, orderBy("timestamp", "desc"), limit(500));
+  const snap = await getDocs(q);
+
+  const now = new Date();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startWeek = new Date(startToday.getTime() - 6 * 24 * 60 * 60 * 1000);
+
+  let todayCount = 0, weekCount = 0, total = 0;
+  const refCounts = {};
+  const devCounts = {};
+
+  snap.forEach(d => {
+    const data = d.data();
+    total++;
+    const t = data.timestamp && data.timestamp.toDate ? data.timestamp.toDate() : null;
+    if (t) {
+      if (t >= startToday) todayCount++;
+      if (t >= startWeek) weekCount++;
+    }
+    const ref = data.referrer || "direct";
+    refCounts[ref] = (refCounts[ref] || 0) + 1;
+    const dev = data.device || "unknown";
+    devCounts[dev] = (devCounts[dev] || 0) + 1;
+  });
+
+  return { total, todayCount, weekCount, refCounts, devCounts, sampled: snap.size >= 500 };
+}
+
+function renderBreakdown(counts, total) {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  if (entries.length === 0) return '<p style="color:#9aa0aa; font-size:12px;">データがありません</p>';
+  return entries.map(([key, count]) => {
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+    return '<div class="breakdown-row">' +
+      '<span class="key" title="' + key + '">' + key + '</span>' +
+      '<span class="bar-bg"><span class="bar-fill" style="width:' + pct + '%"></span></span>' +
+      '<span class="count">' + count + '</span>' +
+      '</div>';
+  }).join("");
+}
+
+function renderAnalytics(panel, stats) {
+  const deviceLabels = { desktop: "パソコン", mobile: "スマートフォン", tablet: "タブレット", unknown: "不明" };
+  const devCountsLabeled = {};
+  Object.entries(stats.devCounts).forEach(([k, v]) => {
+    devCountsLabeled[deviceLabels[k] || k] = v;
+  });
+
+  panel.innerHTML =
+    '<div class="stat-grid">' +
+      '<div class="stat-box"><div class="num">' + stats.total + '</div><div class="label">累計アクセス</div></div>' +
+      '<div class="stat-box"><div class="num">' + stats.todayCount + '</div><div class="label">今日</div></div>' +
+      '<div class="stat-box"><div class="num">' + stats.weekCount + '</div><div class="label">過去7日間</div></div>' +
+    '</div>' +
+    '<div class="breakdown-title">アクセス元</div>' +
+    renderBreakdown(stats.refCounts, stats.total) +
+    '<div class="breakdown-title">デバイス</div>' +
+    renderBreakdown(devCountsLabeled, stats.total) +
+    (stats.sampled ? '<p class="analytics-note">直近500件のアクセスをもとに集計しています</p>' : '');
+}
+
+// ---------- 認証まわり ----------
+function updateUserBar(user) {
+  document.getElementById("userPhoto").src = user.photoURL || "";
+  document.getElementById("userName").textContent = user.displayName || user.email || "";
+}
+
+async function handleLogin() {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    alert("ログインに失敗しました: " + e.message);
+  }
+}
+
+async function handleLogout() {
+  await signOut(auth);
+}
+
+// ---------- 初期化 ----------
+(async function init() {
+  const redirected = await tryRedirect();
+  if (redirected) return;
+
+  document.getElementById("loginBtn").addEventListener("click", handleLogin);
+  document.getElementById("logoutBtn").addEventListener("click", handleLogout);
+
+  document.getElementById("createBtn").addEventListener("click", () => {
+    if (auth.currentUser) createShortUrl(auth.currentUser);
+  });
+  document.getElementById("longUrl").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && auth.currentUser) createShortUrl(auth.currentUser);
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", () => {
+    const link = document.getElementById("shortUrlLink").textContent;
+    navigator.clipboard.writeText(link).then(() => {
+      const btn = document.getElementById("copyBtn");
+      const orig = btn.textContent;
+      btn.textContent = "コピーしました";
+      setTimeout(() => btn.textContent = orig, 1500);
+    });
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById("loginGate").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      updateUserBar(user);
+      loadMyLinks(user);
+    } else {
+      document.getElementById("app").style.display = "none";
+      document.getElementById("loginGate").style.display = "block";
+    }
+  });
+})();
+</script>
+</body>
+</html>
