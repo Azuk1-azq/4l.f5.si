@@ -353,7 +353,7 @@ async function tryRedirect() {
     const snap = await getDoc(ref);
     if (!snap.exists()) {
       document.getElementById("redirectScreen").innerHTML =
-        '<p>このリンクは見つかりませんでした。</p>' +
+        '<p>インターネットが切断されました。</p>' +
         '<p><a href="' + window.location.pathname + '" style="color:#3568e8">トップに戻る</a></p>';
       return true;
     }
