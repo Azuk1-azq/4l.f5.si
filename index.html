@@ -295,7 +295,7 @@ if (isConfigured) {
 }
 
 const COLLECTION = "shortUrls";
-const CODE_CHARS = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 紛らわしい文字(0,O,1,l,I)は除外
+const CODE_CHARS = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 煩わしい文字を除外
 const CODE_LENGTH = 6;
 
 function genCode(len = CODE_LENGTH) {
@@ -339,7 +339,7 @@ function detectReferrer() {
   }
 }
 
-// ---------- リダイレクト処理（誰でもアクセス可） ----------
+// ---------- リダイレクト処理 ----------
 async function tryRedirect() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get("c");
@@ -357,7 +357,7 @@ async function tryRedirect() {
       return true;
     }
 
-    // アクセスログを記録（失敗しても遷移は続行）
+    // アクセスログを記録する部分(失敗の場合は失敗ログを記録する)
     const accessesRef = collection(db, COLLECTION, code, "accesses");
     addDoc(accessesRef, {
       timestamp: serverTimestamp(),
@@ -370,12 +370,12 @@ async function tryRedirect() {
     return true;
   } catch (e) {
     document.getElementById("redirectScreen").innerHTML =
-      '<p>エラーが発生しました。時間をおいて再度お試しください。</p>';
+      '<p>エラーが発生しました。リンクが存在するか確認してください。</p>';
     return true;
   }
 }
 
-// ---------- 作成UI処理 ----------
+// ---------- 作成uiの処理 ----------
 async function createShortUrl(user) {
   const longUrlInput = document.getElementById("longUrl");
   const customCodeInput = document.getElementById("customCode");
@@ -410,7 +410,7 @@ async function createShortUrl(user) {
     if (code) {
       const existing = await getDoc(doc(db, COLLECTION, code));
       if (existing.exists()) {
-        errorMsg.textContent = "そのエイリアスはすでに使われています。";
+        errorMsg.textContent = "そのエイリアスはすでに使われています。別のエイリアスをお試しください。";
         errorMsg.classList.add("show");
         return;
       }
@@ -465,7 +465,7 @@ async function loadMyLinks(user) {
     const snap = await getDocs(q);
 
     if (snap.empty) {
-      listEl.innerHTML = '<p style="color:#9aa0aa; font-size:13px;">まだリンクがありません。</p>';
+      listEl.innerHTML = '<p style="color:#9aa0aa; font-size:13px;">まだリンクを作成していません。</p>';
       return;
     }
 
@@ -498,7 +498,7 @@ async function loadMyLinks(user) {
   } catch (e) {
     console.error("自分のリンク読み込みエラー:", e);
     listEl.innerHTML = '<p style="color:#c0392b; font-size:13px;">読み込みに失敗しました。' +
-      (e.message.includes("index") ? "（Firestoreのインデックス作成が必要な場合があります。コンソールのリンクから作成してください）" : "") +
+      (e.message.includes("index") ? "（不明なエラーが発生しました。時間をおいて再度お試しください。）" : "") +
       '</p>';
   }
 }
@@ -531,7 +531,7 @@ async function toggleAnalytics(code, btn) {
     analyticsCache[code] = stats;
     renderAnalytics(panel, stats);
   } catch (e) {
-    panel.innerHTML = '<p style="color:#c0392b; font-size:13px;">解析データの取得に失敗しました。</p>';
+    panel.innerHTML = '<p style="color:#c0392b; font-size:13px;">解析データの取得に失敗しました。時間をおいて再度お試しください。</p>';
   }
 }
 
