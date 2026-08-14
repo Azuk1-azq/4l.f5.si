@@ -215,7 +215,7 @@
 
     <div class="userbar">
       <div class="who" id="loggedOutBar">
-        <span>ログインすると自分のリンクとアクセス解析を見られます！</span>
+        <span>ログインすると自分のリンクとアクセス解析を見られます</span>
       </div>
       <div class="who" id="loggedInBar" style="display:none;">
         <img id="userPhoto" src="" alt="">
@@ -237,7 +237,7 @@
       <div class="row">
         <div>
           <label for="customCode">エイリアス（任意）</label>
-          <input type="text" id="customCode" placeholder="4l.f5.si/○○○○">
+          <input type="text" id="customCode" placeholder="4l.f5.si/c=○○○○">
         </div>
       </div>
       <p class="hint">空欄の場合はランダムな6文字のコードが割り当てられます</p>
@@ -246,7 +246,7 @@
       <div class="error" id="errorMsg"></div>
 
       <div id="result">
-        <label>できあがったリンク</label>
+        <label>作成したリンク</label>
         <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
           <a href="#" id="shortUrlLink" target="_blank"></a>
           <button class="btn-icon" id="copyBtn" style="margin-left:auto;">コピー</button>
@@ -261,7 +261,7 @@
   </div>
 
   <footer>
-    <span>&copy; 2026 あずき</span>
+    <span>&copy; 2026 ©あずき</span>
   </footer>
 </div>
 
@@ -295,7 +295,7 @@ if (isConfigured) {
 }
 
 const COLLECTION = "shortUrls";
-const CODE_CHARS = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 煩わしい文字を除外
+const CODE_CHARS = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 1とi、oと0などの紛らわしい文字を除外
 const CODE_LENGTH = 6;
 
 function genCode(len = CODE_LENGTH) {
@@ -370,7 +370,8 @@ async function tryRedirect() {
     return true;
   } catch (e) {
     document.getElementById("redirectScreen").innerHTML =
-      '<p>エラーが発生しました。リンクが存在するか確認してください。</p>';
+      '<p>アクセスしたリンクが存在するか確認してください
+</p>';
     return true;
   }
 }
@@ -396,7 +397,7 @@ async function createShortUrl(user) {
   }
 
   if (customCode && !/^[a-zA-Z0-9_-]{3,32}$/.test(customCode)) {
-    errorMsg.textContent = "エイリアスは半角英数字・ハイフン・アンダースコアで3〜32文字にしてください。";
+    errorMsg.textContent = "エイリアスは半角英数字・ハイフン・アンダーバー(スコア)で3〜32文字にしてください。";
     errorMsg.classList.add("show");
     return;
   }
@@ -442,7 +443,7 @@ async function createShortUrl(user) {
 
     if (user) loadMyLinks(user);
   } catch (e) {
-    errorMsg.textContent = "作成に失敗しました。時間をおいて再度お試しください。";
+    errorMsg.textContent = "不明なエラーが発生しました。時間をおいて再度お試しください。";
     errorMsg.classList.add("show");
   } finally {
     createBtn.disabled = false;
